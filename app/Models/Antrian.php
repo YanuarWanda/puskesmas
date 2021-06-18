@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pelayanan extends Model
+class Antrian extends Model
 {
     use HasFactory;
 
-    protected $table = "pelayanan";
+    protected $table = "nomor_antrian";
 
     /**
      * The attributes that are mass assignable.
@@ -17,16 +17,14 @@ class Pelayanan extends Model
      * @var array
      */
      protected $fillable = [
-        'nama',
+        'no',
+        'tanggal',
+        'status',
         'created_at',
-        'updated_at'
+        'updated_at '
     ];
 
-    public function pegawai() {
-        return $this->hasMany(Pegawai::class, 'id_pelayanan');
-    }
-
     public function kunjungan() {
-        return $this->hasManyThrough(Kunjungan::class, Pegawai::class, 'id_pelayanan', 'id_pegawai');
+        return $this->hasOne(\App\Models\Kunjungan::class, 'id_nomor_antrian');
     }
 }
