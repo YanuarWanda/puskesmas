@@ -5,24 +5,24 @@ import {
   usePagination,
   useFilters,
 } from "react-table";
-import { Inertia } from "@inertiajs/inertia";
+import { InertiaLink } from "@inertiajs/inertia-react";
 
 import Authenticated from "@/Layouts/Authenticated";
 import Table from "@/Components/Table";
-import { formatDate, getStatusKunjungan } from "@/Utilities/misc";
+import { formatDate } from "@/Utilities/misc";
 
-export default function DaftarKunjungan(props) {
+export default function AntrianMedis(props) {
   const columns = React.useMemo(
     () => [
       {
         Header: "No",
-        accessor: (row, index) => index + 1, // accessor is the "key" in the data
+        accessor: (row, index) => index + 1,
       },
       {
         id: "tanggal",
         Header: "Tanggal",
         accessor: (row) => {
-          return `${formatDate(row.tanggal)}`;
+          return `${formatDate(row.nomor_antrian.tanggal)}`;
         },
         filter: (rows, id, filterValue) => {
           return rows.filter(
@@ -32,20 +32,30 @@ export default function DaftarKunjungan(props) {
               formatDate(filterValue).includes(row.values[id])
           );
         },
-      },
-      {
-        Header: "Nama",
-        accessor: "pasien.nama",
-      },
-      {
-        Header: "Status",
-        accessor: (row) => {
-          return getStatusKunjungan(row.nomor_antrian.status);
+        Cell: (tableInstance) => {
+          return (
+            <>
+              {formatDate(tableInstance.row.original.nomor_antrian.tanggal)} •{" "}
+              {tableInstance.row.original.waktu}
+            </>
+          );
         },
       },
       {
-        Header: "Layanan",
-        accessor: "pegawai.pelayanan.nama",
+        Header: "Nama Pasien",
+        accessor: "pasien.nama",
+        Cell: (tableInstance) => {
+          return (
+            <a
+              href={route("pasien.show", tableInstance.row.original.pasien.id)}
+              method="post"
+              target="_blank"
+              className="flex gap-4 items-center w-full text-xs text-blue-700 hover:underline"
+            >
+              {tableInstance.row.original.pasien.nama}
+            </a>
+          );
+        },
       },
     ],
     []
@@ -54,7 +64,7 @@ export default function DaftarKunjungan(props) {
   const tableInstance = useTable(
     {
       columns,
-      data: props.list_kunjungan,
+      data: props.antrian,
       defaultColumn: columns,
       initialState: {
         pageSize: 7,
@@ -71,12 +81,6 @@ export default function DaftarKunjungan(props) {
     usePagination
   );
 
-  const onHandleDelete = (id) => {
-    if (window.confirm(`Hapus kunjungan dengan id ${id}?`)) {
-      Inertia.delete(`/kunjungan/${id}`);
-    }
-  };
-
   return (
     <Authenticated
       auth={props.auth}
@@ -86,10 +90,12 @@ export default function DaftarKunjungan(props) {
       <div className="py-8">
         <Table
           tableInstance={tableInstance}
-          editURL={`/kunjungan`}
-          handleDelete={onHandleDelete}
+          customEditIcon="periksa.svg"
+          editURL={`/pemeriksaan`}
+          handleDelete={() => {}}
           withDateSearch={true}
           withDetailButton={false}
+          withDelete={false}
         />
       </div>
     </Authenticated>

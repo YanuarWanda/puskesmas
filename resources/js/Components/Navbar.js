@@ -51,6 +51,11 @@ export default function Navbar(props) {
               text: "Daftar Antrian",
               condition: ["admin", "pendaftaran"].includes(props.auth.peran),
             },
+            {
+              href: "antrian.medis",
+              text: "Antrian Medis",
+              condition: ["admin", "medis"].includes(props.auth.peran),
+            },
           ]}
         />
       ),
@@ -63,8 +68,16 @@ export default function Navbar(props) {
         <NavLinkSub
           title="Pasien"
           menus={[
-            { href: "pasien", text: "Data Pasien" },
-            { href: "pasien.create", text: "Tambah Pasien" },
+            {
+              href: "pasien",
+              text: "Data Pasien",
+              condition: ["admin", "pendaftaran"].includes(props.auth.peran),
+            },
+            {
+              href: "pasien.create",
+              text: "Tambah Pasien",
+              condition: ["admin", "pendaftaran"].includes(props.auth.peran),
+            },
           ]}
         />
       ),
@@ -84,6 +97,17 @@ export default function Navbar(props) {
       ),
     },
     {
+      href: "pemeriksaan",
+      src: "rekam_medis.svg",
+      text: "Rekam Medis",
+      render: (
+        <NavLinkSub
+          title="Rekam Medis"
+          menus={[{ href: "pemeriksaan", text: "Data Pemeriksaan" }]}
+        />
+      ),
+    },
+    {
       href: "obat",
       src: "obat.svg",
       text: "Obat",
@@ -98,42 +122,43 @@ export default function Navbar(props) {
       ),
     },
     {
-      href: "rekam_medis",
-      src: "rekam_medis.svg",
-      text: "Rekam Medis",
+      href: "profil",
+      src: "profile-white.svg",
+      text: "Profil",
       render: (
         <NavLinkSub
-          title="pegawai"
-          menus={[
-            { href: "pegawai", text: "Data pegawai" },
-            { href: "pegawai.create", text: "Tambah pegawai" },
-          ]}
+          title="Profil"
+          menus={[{ href: "profil", text: "Data Pengguna" }]}
         />
       ),
     },
     {
-      href: "pengaturan",
+      href: "jadwal.create",
+      check: "pengaturan",
       src: "cogwheel.svg",
       text: "Pengaturan",
       render: (
         <NavLinkSub
-          title="pegawai"
+          title="Pengaturan"
           menus={[
-            { href: "pegawai", text: "Data pegawai" },
-            { href: "pegawai.create", text: "Tambah pegawai" },
+            { href: "jadwal.create", text: "Data Jadwal" },
+            { href: "kontak.create", text: "Data Kontak" },
           ]}
         />
       ),
     },
   ];
   const userAccess = {
-    admin: [0, 1, 2, 3, 4, 5, 6, 7],
+    admin: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     antrian: [2, 7],
-    pendaftaran: [2, 3, 4],
+    pendaftaran: [2, 3, 4, 7],
+    medis: [2, 5, 7],
   };
 
   const submenus = () => {
-    const selected = navs.find((n) => window.location.href.includes(n.href));
+    const selected = navs.find((n) =>
+      window.location.href.includes(n.check ?? n.href)
+    );
     return selected && selected.render ? selected.render : <> </>;
   };
 

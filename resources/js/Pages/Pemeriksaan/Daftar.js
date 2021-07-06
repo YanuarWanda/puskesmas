@@ -9,18 +9,18 @@ import { Inertia } from "@inertiajs/inertia";
 
 import Authenticated from "@/Layouts/Authenticated";
 import Table from "@/Components/Table";
-import { formatDate, getStatusKunjungan } from "@/Utilities/misc";
+import { formatDate } from "@/Utilities/misc";
 
-export default function DaftarKunjungan(props) {
+export default function DaftarPemeriksaan(props) {
   const columns = React.useMemo(
     () => [
       {
         Header: "No",
-        accessor: (row, index) => index + 1, // accessor is the "key" in the data
+        accessor: (row, index) => index + 1,
       },
       {
         id: "tanggal",
-        Header: "Tanggal",
+        Header: "Tanggal Pemeriksaan",
         accessor: (row) => {
           return `${formatDate(row.tanggal)}`;
         },
@@ -32,20 +32,24 @@ export default function DaftarKunjungan(props) {
               formatDate(filterValue).includes(row.values[id])
           );
         },
-      },
-      {
-        Header: "Nama",
-        accessor: "pasien.nama",
-      },
-      {
-        Header: "Status",
-        accessor: (row) => {
-          return getStatusKunjungan(row.nomor_antrian.status);
+        Cell: (tableInstance) => {
+          return (
+            <>
+              {formatDate(tableInstance.row.original.tanggal)} •{" "}
+              {tableInstance.row.original.waktu}
+            </>
+          );
         },
       },
       {
-        Header: "Layanan",
-        accessor: "pegawai.pelayanan.nama",
+        Header: "Nama Pasien",
+        accessor: "pasien.nama",
+      },
+      {
+        Header: "Petugas Medis",
+        accessor: (row) => {
+          return `${row.pegawai.nama} (${row.pegawai.pelayanan.nama})`;
+        },
       },
     ],
     []
@@ -54,7 +58,7 @@ export default function DaftarKunjungan(props) {
   const tableInstance = useTable(
     {
       columns,
-      data: props.list_kunjungan,
+      data: props.list_pemeriksaan,
       defaultColumn: columns,
       initialState: {
         pageSize: 7,
@@ -71,12 +75,6 @@ export default function DaftarKunjungan(props) {
     usePagination
   );
 
-  const onHandleDelete = (id) => {
-    if (window.confirm(`Hapus kunjungan dengan id ${id}?`)) {
-      Inertia.delete(`/kunjungan/${id}`);
-    }
-  };
-
   return (
     <Authenticated
       auth={props.auth}
@@ -86,10 +84,12 @@ export default function DaftarKunjungan(props) {
       <div className="py-8">
         <Table
           tableInstance={tableInstance}
-          editURL={`/kunjungan`}
-          handleDelete={onHandleDelete}
+          customEditIcon="print-black.svg"
+          editURL="/pemeriksaan"
+          extraEditUrl="/print"
+          handleDelete={() => {}}
           withDateSearch={true}
-          withDetailButton={false}
+          withDelete={false}
         />
       </div>
     </Authenticated>

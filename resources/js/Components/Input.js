@@ -11,6 +11,9 @@ export default function Input({
   isFocused,
   handleChange,
   maxLength,
+  disabled,
+  id,
+  step,
 }) {
   const input = useRef();
 
@@ -23,6 +26,8 @@ export default function Input({
   return (
     <div className="flex flex-col items-start">
       <input
+        id={id}
+        step={step}
         type={type}
         name={name}
         value={value}
@@ -32,6 +37,7 @@ export default function Input({
         }
         ref={input}
         autoComplete={autoComplete}
+        disabled={disabled}
         placeholder={placeholder}
         required={required}
         maxLength={maxLength}

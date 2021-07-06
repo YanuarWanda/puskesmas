@@ -5,10 +5,13 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\KunjunganController;
+use App\Http\Controllers\PemeriksaanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,9 +36,15 @@ Route::get('/', function () {
     if (Auth::user()->peran == 'pendaftaran') {
         return redirect()->route('antrian.list');
     }
+    
+    if (Auth::user()->peran == 'medis') {
+        return redirect()->route('antrian.medis');
+    }
 
     return redirect()->route('pegawai');
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/informasi', [PublicController::class, 'informasi'])->name('informasi');
+Route::get('/kontak', [PublicController::class, 'kontak'])->name('kontak');
 
 Route::group([
     "prefix" => 'pegawai', 
@@ -65,18 +74,20 @@ Route::group([
 
 Route::group([
     "prefix" => 'antrian',
-    "middleware" => ['auth', 'verified', 'role:admin|antrian|pendaftaran']
+    "middleware" => ['auth', 'verified', 'role:admin|antrian|pendaftaran|medis']
 ], function() {
     Route::get('/', [AntrianController::class, 'index'])->name('antrian');
     Route::post('/ambil', [AntrianController::class, 'ambil'])->name('antrian.ambil');
 
     Route::get('/list', [AntrianController::class, 'list'])->name('antrian.list');
     Route::post('/skip', [AntrianController::class, 'skip'])->name('antrian.skip');
+    
+    Route::get('/medis', [AntrianController::class, 'medis'])->name('antrian.medis');
 });
 
 Route::group([
     "prefix" => 'pasien',
-    "middleware" => ['auth', 'verified', 'role:admin|pendaftaran']
+    "middleware" => ['auth', 'verified', 'role:admin|pendaftaran|medis']
 ], function() {
     Route::get('/', [PasienController::class, 'index'])->name('pasien');
     Route::get('/tambah', [PasienController::class, 'create'])->name('pasien.create');
@@ -103,16 +114,33 @@ Route::group([
     Route::get('/{id_kunjungan}/detail', [KunjunganController::class, 'show'])->name('kunjungan.show');
 });
 
+Route::group([
+    "prefix" => 'pemeriksaan',
+    "middleware" => ['auth', 'verified', 'role:admin|medis']
+], function() {
+    Route::get('/', [PemeriksaanController::class, 'index'])->name('pemeriksaan');
+    Route::get('/{id_kunjungan}', [PemeriksaanController::class, 'create'])->name('pemeriksaan.create');
+    Route::post('/{id_kunjungan}', [PemeriksaanController::class, 'store'])->name('pemeriksaan.store');
+    Route::get('/{id_kunjungan}/detail', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+});
+
+Route::group([
+    "prefix" => 'pengaturan',
+    "middleware" => ['auth', 'verified', 'role:admin']
+], function() {
+    Route::get('/jadwal', [PengaturanController::class, 'createJadwal'])->name('jadwal.create');
+    Route::post('/jadwal', [PengaturanController::class, 'updateJadwal'])->name('jadwal.update');
+
+    Route::get('/kontak', [PengaturanController::class, 'createKontak'])->name('kontak.create');
+    Route::post('/kontak', [PengaturanController::class, 'updateKontak'])->name('kontak.update');
+});
+
+Route::get('/profil', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('profil');
+
 Route::get('/obat', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('obat');
-
-Route::get('/rekam-medis', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('rekam_medis');
-
-Route::get('/pengaturan', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('pengaturan');
 
 require __DIR__.'/auth.php';
