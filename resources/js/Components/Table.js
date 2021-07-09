@@ -134,10 +134,13 @@ export default function Table({
   withPagination = true,
   withDateSearch = false,
   withDetailButton = true,
+  withEditButton = true,
   withDelete = true,
   customEditIcon,
+  customDeleteIcon,
   extraEditUrl,
   handleDelete,
+  extraActions = [],
 }) {
   const {
     getTableProps,
@@ -210,24 +213,68 @@ export default function Table({
                 {withAction && (
                   <td className="border-b border-primary p-2 text-xs">
                     <div className="flex gap-2">
-                      <InertiaLink
-                        href={`${editURL}/${row.original.id}${
-                          extraEditUrl ?? ""
-                        }`}
-                        as="button"
-                        className="p-1 rounded-full hover:bg-gray-400"
-                      >
-                        <img
-                          className="max-h-8"
-                          src={`/assets/${customEditIcon ?? "edit.svg"}`}
-                        />
-                      </InertiaLink>
+                      {extraActions.length > 0 &&
+                        extraActions.map((action) => {
+                          if (action.type === "button") {
+                            return (
+                              <button
+                                key={row.original.id}
+                                className="p-1 rounded-full hover:bg-gray-400"
+                                onClick={() => action.handler(row.original.id)}
+                              >
+                                {action.icon && (
+                                  <img
+                                    className="max-h-8"
+                                    src={`/assets/${action.icon}`}
+                                  />
+                                )}
+                                {action.label}
+                              </button>
+                            );
+                          }
+
+                          if (action.type === "link") {
+                            return (
+                              <InertiaLink
+                                key={row.original.id}
+                                href={`${editURL}/${row.original.id}/${action.to}`}
+                                as="button"
+                                className="p-1 rounded-full hover:bg-gray-400"
+                              >
+                                {action.icon && (
+                                  <img
+                                    className="max-h-8"
+                                    src={`/assets/${action.icon}`}
+                                  />
+                                )}
+                                {action.label}
+                              </InertiaLink>
+                            );
+                          }
+                        })}
+                      {withEditButton && (
+                        <InertiaLink
+                          href={`${editURL}/${row.original.id}${
+                            extraEditUrl ?? ""
+                          }`}
+                          as="button"
+                          className="p-1 rounded-full hover:bg-gray-400"
+                        >
+                          <img
+                            className="max-h-8"
+                            src={`/assets/${customEditIcon ?? "edit.svg"}`}
+                          />
+                        </InertiaLink>
+                      )}
                       {withDelete && (
                         <button
                           className="p-1 rounded-full hover:bg-gray-400"
                           onClick={() => handleDelete(row.original.id)}
                         >
-                          <img className="max-h-8" src="/assets/delete.svg" />
+                          <img
+                            className="max-h-8"
+                            src={`/assets/${customDeleteIcon ?? "delete.svg"}`}
+                          />
                         </button>
                       )}
                       {withDetailButton && (

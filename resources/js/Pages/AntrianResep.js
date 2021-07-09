@@ -5,12 +5,13 @@ import {
   usePagination,
   useFilters,
 } from "react-table";
+import { Inertia } from "@inertiajs/inertia";
 
 import Authenticated from "@/Layouts/Authenticated";
 import Table from "@/Components/Table";
 import { formatDate } from "@/Utilities/misc";
 
-export default function AntrianMedis(props) {
+export default function AntrianResep(props) {
   const columns = React.useMemo(
     () => [
       {
@@ -56,6 +57,25 @@ export default function AntrianMedis(props) {
           );
         },
       },
+      {
+        Header: "Nomor Resep",
+        accessor: "no_resep_obat",
+      },
+      {
+        Header: "Obat",
+        Cell: (tableInstance) => {
+          return (
+            <div>
+              {tableInstance.row.original.resep_obat.map((resep) => (
+                <p>
+                  - {resep.obat.nama} • {resep.jumlah} {resep.obat.satuan} •{" "}
+                  {resep.aturan_pakai}
+                </p>
+              ))}
+            </div>
+          );
+        },
+      },
     ],
     []
   );
@@ -89,12 +109,15 @@ export default function AntrianMedis(props) {
       <div className="py-8">
         <Table
           tableInstance={tableInstance}
-          customEditIcon="periksa.svg"
-          editURL={`/pemeriksaan`}
-          handleDelete={() => {}}
+          handleDelete={(id) => {
+            if (window.confirm(`Selesaikan proses pengambilan obat?`)) {
+              Inertia.post(`/resep/${id}`);
+            }
+          }}
+          customDeleteIcon="detail.svg"
           withDateSearch={true}
+          withEditButton={false}
           withDetailButton={false}
-          withDelete={false}
         />
       </div>
     </Authenticated>

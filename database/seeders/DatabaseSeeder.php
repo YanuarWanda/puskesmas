@@ -21,6 +21,13 @@ class DatabaseSeeder extends Seeder
             'peran' => 'admin',
         ]);
 
+        DB::table('pegawai')->insert([
+            'id_pelayanan' => null,
+            'id_pengguna' => 1,
+            'nama' => "Administrator",
+            'jabatan' => "Administrator"
+        ]);
+
         DB::table('pelayanan')->insert([
             [ 'nama' => 'Poli Anak' ],
             [ 'nama' => 'Poli Umum' ],
@@ -65,11 +72,5 @@ class DatabaseSeeder extends Seeder
             [ 'hari' => 'Sabtu', 'jam_mulai' => '08:00', 'jam_selesai' => '16:00' ],
             [ 'hari' => 'Minggu', 'jam_mulai' => '08:00', 'jam_selesai' => '16:00' ],
         ]);
-
-        \App\Models\Pegawai::factory()->count(50)->create();
-        \App\Models\Pasien::factory()->count(50)->create();
-        \App\Models\Kunjungan::factory()->count(50)->create();
-        \App\Models\Obat::factory()->count(50)->create();
-        \App\Models\ResepObat::factory()->count(50)->create();
     }
 }

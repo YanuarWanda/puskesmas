@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\ObatController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\PelayananController;
@@ -41,6 +43,14 @@ Route::get('/', function () {
         return redirect()->route('antrian.medis');
     }
 
+    if (Auth::user()->peran == 'pembayaran') {
+        return redirect()->route('pembayaran');
+    }
+
+    if (Auth::user()->peran == 'apoteker') {
+        return redirect()->route('antrian.resep');
+    }
+
     return redirect()->route('pegawai');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/informasi', [PublicController::class, 'informasi'])->name('informasi');
@@ -74,7 +84,7 @@ Route::group([
 
 Route::group([
     "prefix" => 'antrian',
-    "middleware" => ['auth', 'verified', 'role:admin|antrian|pendaftaran|medis']
+    "middleware" => ['auth', 'verified', 'role:admin|antrian|pendaftaran|medis|apoteker']
 ], function() {
     Route::get('/', [AntrianController::class, 'index'])->name('antrian');
     Route::post('/ambil', [AntrianController::class, 'ambil'])->name('antrian.ambil');
@@ -83,11 +93,15 @@ Route::group([
     Route::post('/skip', [AntrianController::class, 'skip'])->name('antrian.skip');
     
     Route::get('/medis', [AntrianController::class, 'medis'])->name('antrian.medis');
+
+    Route::geT('/resep', [AntrianController::class, 'resep'])->name('antrian.resep');
 });
+
+Route::post('/resep/{id_kunjungan}', [ObatController::class, 'ambil'])->name('obat.ambil');
 
 Route::group([
     "prefix" => 'pasien',
-    "middleware" => ['auth', 'verified', 'role:admin|pendaftaran|medis']
+    "middleware" => ['auth', 'verified', 'role:admin|pendaftaran|medis|apoteker']
 ], function() {
     Route::get('/', [PasienController::class, 'index'])->name('pasien');
     Route::get('/tambah', [PasienController::class, 'create'])->name('pasien.create');
@@ -135,12 +149,36 @@ Route::group([
     Route::post('/kontak', [PengaturanController::class, 'updateKontak'])->name('kontak.update');
 });
 
-Route::get('/profil', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('profil');
+Route::group([
+    "prefix" => 'pembayaran',
+    "middleware" => ['auth', 'verified', 'role:admin|pembayaran']
+], function() {
+    Route::get('/', [PembayaranController::class, 'index'])->name('pembayaran');
+    Route::get('/lunas', [PembayaranController::class, 'lunas'])->name('pembayaran.lunas');
+    Route::get('/{id_kunjungan}', [PembayaranController::class, 'create'])->name('pembayaran.create');
+    Route::post('/{id_kunjungan}', [PembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::get('/{id_kunjungan}/detail', [PembayaranController::class, 'show'])->name('pembayaran.show');
+});
 
-Route::get('/obat', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('obat');
+Route::group([
+    "prefix" => 'obat',
+    "middleware" => ['auth', 'verified', 'role:admin|apoteker']
+], function() {
+    Route::get('/', [ObatController::class, 'index'])->name('obat');
+    Route::get('/tambah', [ObatController::class, 'create'])->name('obat.create');
+    Route::post('/tambah', [ObatController::class, 'store'])->name('obat.store');
+    Route::get('/{id_obat}', [ObatController::class, 'edit'])->name('obat.edit');
+    Route::put('/{id_obat}', [ObatController::class, 'update'])->name('obat.update');
+    Route::delete('/{id_obat}', [ObatController::class, 'delete'])->name('obat.delete');
+    Route::get('/{id_obat}/stok', [ObatController::class, 'editStok'])->name('obat.editStok');
+    Route::put('/{id_obat}/stok', [ObatController::class, 'updateStok'])->name('obat.updateStok');
+});
+
+Route::get('/profil', [PengaturanController::class, 'editPengguna'])
+    ->middleware(['auth', 'verified', 'role:admin|antrian|pendaftaran|medis|pembayaran|apoteker'])
+    ->name('profil');
+Route::put('/profil', [PengaturanController::class, 'updatePengguna'])
+    ->middleware(['auth', 'verified', 'role:admin|antrian|pendaftaran|medis|pembayaran|apoteker'])
+    ->name('profil.update');
 
 require __DIR__.'/auth.php';

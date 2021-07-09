@@ -48,13 +48,18 @@ export default function Navbar(props) {
             },
             {
               href: "antrian.list",
-              text: "Daftar Antrian",
+              text: "Antrian Pendaftaran",
               condition: ["admin", "pendaftaran"].includes(props.auth.peran),
             },
             {
               href: "antrian.medis",
               text: "Antrian Medis",
               condition: ["admin", "medis"].includes(props.auth.peran),
+            },
+            {
+              href: "antrian.resep",
+              text: "Antrian Resep",
+              condition: ["admin", "apoteker"].includes(props.auth.peran),
             },
           ]}
         />
@@ -108,15 +113,29 @@ export default function Navbar(props) {
       ),
     },
     {
+      href: "pembayaran",
+      src: "pembayaran.svg",
+      text: "Pembayaran",
+      render: (
+        <NavLinkSub
+          title="Pembayaran"
+          menus={[
+            { href: "pembayaran", text: "Belum Dibayarkan" },
+            { href: "pembayaran.lunas", text: "Data Pembayaran" },
+          ]}
+        />
+      ),
+    },
+    {
       href: "obat",
       src: "obat.svg",
       text: "Obat",
       render: (
         <NavLinkSub
-          title="pegawai"
+          title="Obat"
           menus={[
-            { href: "pegawai", text: "Data pegawai" },
-            { href: "pegawai.create", text: "Tambah pegawai" },
+            { href: "obat", text: "Data Obat" },
+            { href: "obat.create", text: "Tambah Obat" },
           ]}
         />
       ),
@@ -149,10 +168,12 @@ export default function Navbar(props) {
     },
   ];
   const userAccess = {
-    admin: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-    antrian: [2, 7],
-    pendaftaran: [2, 3, 4, 7],
-    medis: [2, 5, 7],
+    admin: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    antrian: [2, 8],
+    pendaftaran: [2, 3, 4, 8],
+    medis: [2, 5, 8],
+    pembayaran: [6, 8],
+    apoteker: [2, 7, 8],
   };
 
   const submenus = () => {
